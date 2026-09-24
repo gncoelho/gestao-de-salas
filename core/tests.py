@@ -33,8 +33,8 @@ class SalaViewsTest(TestCase):
         response = self.client.get(reverse('sala_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Sala 101")
-        self.assertContains(response, "monday")
-        self.assertContains(response, "from")
+        self.assertContains(response, "Segunda-feira")
+        self.assertContains(response, "09:00 - 17:00")
 
     def test_sala_create_view_get(self):
         response = self.client.get(reverse('sala_create'))

@@ -1,47 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Salas</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background-color: #f8f9fa; }
-        h1 { color: #333; }
-        .btn { display: inline-block; padding: 0.5rem 1rem; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; margin-bottom: 1rem; }
-        .btn:hover { background-color: #0056b3; }
-        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #dee2e6; }
-        th { background-color: #f1f1f1; }
-        .schedule-badge { display: inline-block; background: #e9ecef; padding: 0.2rem 0.5rem; border-radius: 3px; margin: 0.1rem; font-size: 0.85rem; }
-    </style>
-</head>
-<body>
-    <h1>Salas</h1>
-    <a href="{% url 'sala_create' %}" class="btn">Adicionar Nova Sala</a>
+{% extends "webapp/base.html" %}
+
+{% block title %}Salas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-3">Salas</h1>
+    <a href="{% url 'sala_create' %}" class="btn btn-primary mb-3">Adicionar Nova Sala</a>
 
     {% if salas %}
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Horários Disponíveis (JSON)</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for sala in salas %}
-            <tr>
-                <td>{{ sala.id }}</td>
-                <td><strong>{{ sala.nome }}</strong></td>
-                <td>
-                    <pre style="margin: 0; background: #f8f9fa; padding: 0.5rem; border-radius: 4px;">{{ sala.horarios_disponiveis }}</pre>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table class="table table-bordered bg-white align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Horários Disponíveis</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sala in salas %}
+                <tr>
+                    <td>{{ sala.id }}</td>
+                    <td><strong>{{ sala.nome }}</strong></td>
+                    <td>
+                        {% with dias=sala.horarios_formatados %}
+                            {% if dias %}
+                            <ul class="list-unstyled mb-0">
+                                {% for dia in dias %}
+                                <li class="mb-1">
+                                    <span class="fw-semibold">{{ dia.dia }}:</span>
+                                    {% for periodo in dia.periodos %}
+                                    <span class="badge text-bg-secondary">{{ periodo }}</span>
+                                    {% endfor %}
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                            <span class="text-muted">Nenhum horário disponível</span>
+                            {% endif %}
+                        {% endwith %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
     {% else %}
     <p>Nenhuma sala cadastrada.</p>
     {% endif %}
-</body>
-</html>
+</div>
+{% endblock %}

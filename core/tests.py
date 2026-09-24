@@ -1,4 +1,5 @@
 import json
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from .models import Sala
@@ -25,7 +26,21 @@ class SalaModelTest(TestCase):
 
 
 class SalaViewsTest(TestCase):
-    def test_sala_list_view(self):
+    def setUp(self):
+        self.user = User.objects.create_user(username='testuser', password='password123')
+
+    def test_sala_list_view_unauthenticated(self):
+        response = self.client.get(reverse('sala_list'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_sala_create_view_unauthenticated(self):
+        response = self.client.get(reverse('sala_create'))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
+    def test_sala_list_view_authenticated(self):
+        self.client.login(username='testuser', password='password123')
         Sala.objects.create(
             nome="Sala 101",
             horarios_disponiveis={"monday": [{"from": 9, "to": 17}]}
@@ -37,11 +52,13 @@ class SalaViewsTest(TestCase):
         self.assertContains(response, "09:00 - 17:00")
 
     def test_sala_create_view_get(self):
+        self.client.login(username='testuser', password='password123')
         response = self.client.get(reverse('sala_create'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Adicionar Nova Sala")
 
     def test_sala_create_view_post_valid(self):
+        self.client.login(username='testuser', password='password123')
         data = {
             'nome': 'Sala Inovação',
             'monday_from': 9,
@@ -60,6 +77,7 @@ class SalaViewsTest(TestCase):
         })
 
     def test_sala_create_view_post_invalid_hours(self):
+        self.client.login(username='testuser', password='password123')
         data = {
             'nome': 'Sala Inválida',
             'monday_from': 17,

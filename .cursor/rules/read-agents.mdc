@@ -1,0 +1,14 @@
+---
+description: Sempre ler AGENTS.md do projeto antes de criar ou alterar código
+alwaysApply: true
+---
+
+# Ler AGENTS.md
+
+Antes de criar, alterar ou revisar código neste repositório:
+
+1. Leia `AGENTS.md` na raiz do projeto.
+2. Siga as instruções desse arquivo. Elas têm prioridade sobre convenções genéricas.
+3. Se `AGENTS.md` for atualizado no meio da sessão, releia-o antes de continuar.
+
+Não invente links, rotas ou features que não estejam em `AGENTS.md` nem no pedido do usuário.

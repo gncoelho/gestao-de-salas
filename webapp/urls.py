@@ -5,8 +5,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('', views.welcome, name='welcome'),
-    path('login/', LoginView.as_view(template_name='webapp/login.html'), name='login'),
-    path('logout/', login_not_required(LogoutView.as_view()), name='logout'),
-    path('cadastro/', views.cadastro, name='cadastro'),
+    path("", views.welcome, name="welcome"),
+    path("login/", LoginView.as_view(template_name="webapp/login.html"), name="login"),
+    path("logout/", login_not_required(LogoutView.as_view()), name="logout"),
+    path("cadastro/", views.cadastro, name="cadastro"),
 ]

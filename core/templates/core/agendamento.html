@@ -1,0 +1,107 @@
+{% extends "webapp/base.html" %}
+
+{% block title %}Agendamento de Salas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Agendamento de Sala</h1>
+    <a href="{% url 'welcome' %}" class="btn btn-outline-secondary">Voltar</a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h2 class="h5 card-title mb-3">Buscar Sala Disponível</h2>
+      <form method="get" action="{% url 'agendar_sala' %}" class="row g-3">
+        <div class="col-md-5">
+          <label for="{{ form.horas_seguidas.id_for_label }}" class="form-label">{{ form.horas_seguidas.label }}</label>
+          {{ form.horas_seguidas }}
+        </div>
+        <div class="col-md-5">
+          <label for="{{ form.dia_semana.id_for_label }}" class="form-label">{{ form.dia_semana.label }}</label>
+          {{ form.dia_semana }}
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if data_agendamento %}
+    <div class="alert alert-info mb-4" role="alert">
+      <strong>Data do agendamento:</strong> {{ data_agendamento|date:"d/m/Y" }}
+    </div>
+
+    {% if salas_encontradas %}
+      <div class="row row-cols-1 row-cols-md-2 g-4 mb-4">
+        {% for item in salas_encontradas %}
+          <div class="col">
+            <div class="card h-100 border-0 shadow-sm">
+              <div class="card-body">
+                <h3 class="h5 card-title">{{ item.sala.nome }}</h3>
+                <p class="text-muted small">Horários disponíveis com a duração desejada:</p>
+                <div class="d-flex flex-wrap gap-2">
+                  {% for slot in item.slots %}
+                    <form method="post" action="{% url 'agendar_sala' %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="sala" value="{{ item.sala.id }}">
+                      <input type="hidden" name="data" value="{{ data_agendamento|date:'Y-m-d' }}">
+                      <input type="hidden" name="hora_inicio" value="{{ slot.hora_inicio }}">
+                      <input type="hidden" name="hora_fim" value="{{ slot.hora_fim }}">
+                      <button type="submit" class="btn btn-outline-success btn-sm">
+                        {{ slot.formatado }} - Agendar
+                      </button>
+                    </form>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-warning" role="alert">
+        Nenhuma sala encontrada com a quantidade de horas consecutivas para o dia selecionado.
+      </div>
+    {% endif %}
+  {% endif %}
+
+  {% if meus_agendamentos %}
+    <div class="card shadow-sm border-0 mt-4">
+      <div class="card-body">
+        <h2 class="h5 card-title mb-3">Meus Agendamentos</h2>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Sala</th>
+                <th>Data</th>
+                <th>Horário</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ag in meus_agendamentos %}
+                <tr>
+                  <td>{{ ag.sala.nome }}</td>
+                  <td>{{ ag.data|date:"d/m/Y" }}</td>
+                  <td>{{ ag.hora_inicio|stringformat:"02d" }}:00 - {{ ag.hora_fim|stringformat:"02d" }}:00</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,62 +1,48 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Sala</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 2rem; background-color: #f8f9fa; }
-        .container { max-width: 600px; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .form-group { margin-bottom: 1rem; }
-        label { display: block; font-weight: bold; margin-bottom: 0.3rem; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .day-row { display: flex; gap: 10px; align-items: center; margin-bottom: 0.8rem; background: #f8f9fa; padding: 0.5rem; border-radius: 4px; }
-        .day-row label { flex: 1; margin: 0; }
-        .day-row input { flex: 1; }
-        .btn { padding: 0.6rem 1.2rem; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 1rem; }
-        .btn-cancel { background-color: #6c757d; text-decoration: none; display: inline-block; text-align: center; margin-left: 0.5rem; }
-        .error { color: red; font-size: 0.85rem; margin-top: 0.2rem; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Adicionar Nova Sala</h1>
-        <form method="post">
-            {% csrf_token %}
+{% extends "webapp/base.html" %}
 
-            {% if form.non_field_errors %}
-                <div class="error">{{ form.non_field_errors }}</div>
-            {% endif %}
+{% block title %}{% if sala %}Editar Sala{% else %}Adicionar Sala{% endif %}{% endblock %}
 
-            <div class="form-group">
-                <label for="{{ form.nome.id_for_label }}">Nome da Sala</label>
-                {{ form.nome }}
-                {% if form.nome.errors %}
-                    <div class="error">{{ form.nome.errors }}</div>
+{% block content %}
+<div class="container py-4">
+    <div class="card mx-auto" style="max-width: 600px;">
+        <div class="card-body">
+            <h1 class="h3 mb-3">{% if sala %}Editar Sala{% else %}Adicionar Nova Sala{% endif %}</h1>
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="text-danger mb-3">{{ form.non_field_errors }}</div>
                 {% endif %}
 
-            </div>
+                <div class="mb-3">
+                    <label for="{{ form.nome.id_for_label }}" class="form-label">Nome da Sala</label>
+                    {{ form.nome }}
+                    {% if form.nome.errors %}
+                        <div class="text-danger">{{ form.nome.errors }}</div>
+                    {% endif %}
+                </div>
 
-            <h3>Horários Disponíveis (Horas Inteiras)</h3>
-            <p><small>Preencha os horários de início ('from') e fim ('to') para os dias desejados (ex: from: 9, to: 17):</small></p>
+                <h2 class="h5">Horários Disponíveis (Horas Inteiras)</h2>
+                <p class="text-muted small">Preencha os horários de início (De) e fim (Até) para os dias desejados (ex: De: 9, Até: 17).</p>
 
-            {% for field in form %}
-                {% if field.name != 'nome' and not field.is_hidden %}
-                    <div class="form-group">
-                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                            <div class="error">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% endfor %}
+                {% for field in form %}
+                    {% if field.name != 'nome' and not field.is_hidden %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }}
+                            {% if field.errors %}
+                                <div class="text-danger">{{ field.errors }}</div>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
 
-            <div style="margin-top: 1.5rem;">
-                <button type="submit" class="btn">Salvar Sala</button>
-                <a href="{% url 'sala_list' %}" class="btn btn-cancel">Cancelar</a>
-            </div>
-        </form>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-success">{% if sala %}Salvar Alterações{% else %}Salvar Sala{% endif %}</button>
+                    <a href="{% url 'sala_list' %}" class="btn btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

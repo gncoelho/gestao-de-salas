@@ -15,6 +15,7 @@
                     <th>ID</th>
                     <th>Nome</th>
                     <th>Horários Disponíveis</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -39,6 +40,9 @@
                             <span class="text-muted">Nenhum horário disponível</span>
                             {% endif %}
                         {% endwith %}
+                    </td>
+                    <td>
+                        <a href="{% url 'sala_update' sala.pk %}" class="btn btn-sm btn-outline-secondary">Editar</a>
                     </td>
                 </tr>
                 {% endfor %}

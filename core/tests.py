@@ -39,6 +39,15 @@ class SalaViewsTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse('login'), response.url)
 
+    def test_sala_update_view_unauthenticated(self):
+        sala = Sala.objects.create(
+            nome="Sala 101",
+            horarios_disponiveis={"monday": [{"from": 9, "to": 17}]}
+        )
+        response = self.client.get(reverse('sala_update', args=[sala.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('login'), response.url)
+
     def test_sala_list_view_authenticated(self):
         self.client.login(username='testuser', password='password123')
         Sala.objects.create(
@@ -50,6 +59,7 @@ class SalaViewsTest(TestCase):
         self.assertContains(response, "Sala 101")
         self.assertContains(response, "Segunda-feira")
         self.assertContains(response, "09:00 - 17:00")
+        self.assertContains(response, "Editar")
 
     def test_sala_create_view_get(self):
         self.client.login(username='testuser', password='password123')
@@ -91,3 +101,37 @@ class SalaViewsTest(TestCase):
             "'monday' end hour ('to') must be greater than start hour ('from')."
         )
         self.assertEqual(Sala.objects.count(), 0)
+
+    def test_sala_update_view_get(self):
+        self.client.login(username='testuser', password='password123')
+        sala = Sala.objects.create(
+            nome="Sala 101",
+            horarios_disponiveis={"monday": [{"from": 9, "to": 17}]}
+        )
+        response = self.client.get(reverse('sala_update', args=[sala.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Editar Sala")
+        self.assertContains(response, "Sala 101")
+        self.assertContains(response, 'value="9"')
+        self.assertContains(response, 'value="17"')
+
+    def test_sala_update_view_post_valid(self):
+        self.client.login(username='testuser', password='password123')
+        sala = Sala.objects.create(
+            nome="Sala 101",
+            horarios_disponiveis={"monday": [{"from": 9, "to": 17}]}
+        )
+        data = {
+            'nome': 'Sala 102',
+            'tuesday_from': 10,
+            'tuesday_to': 18,
+        }
+        response = self.client.post(reverse('sala_update', args=[sala.pk]), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('sala_list'))
+
+        sala.refresh_from_db()
+        self.assertEqual(sala.nome, 'Sala 102')
+        self.assertEqual(sala.horarios_disponiveis, {
+            'tuesday': [{'from': 10, 'to': 18}],
+        })

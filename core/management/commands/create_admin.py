@@ -14,7 +14,9 @@ class Command(BaseCommand):
         dotenv.load_dotenv()
         env = os.getenv("ENVIRONMENT") or os.getenv("DJANGO_ENV") or os.getenv("ENV")
         if not env or env.lower() not in ("development", "dev"):
-            raise CommandError("Superuser creation is only allowed in the development environment.")
+            raise CommandError(
+                "Superuser creation is only allowed in the development environment."
+            )
 
         User = get_user_model()
         user, created = User.objects.get_or_create(

@@ -1,5 +1,8 @@
 import json
+from io import StringIO
+from unittest.mock import patch
 from django.contrib.auth.models import User
+from django.core.management import call_command, CommandError
 from django.test import TestCase
 from django.urls import reverse
 from .models import Sala
@@ -135,3 +138,24 @@ class SalaViewsTest(TestCase):
         self.assertEqual(sala.horarios_disponiveis, {
             'tuesday': [{'from': 10, 'to': 18}],
         })
+
+
+class CreateAdminCommandTest(TestCase):
+    @patch.dict("os.environ", {"ENVIRONMENT": "development"}, clear=True)
+    def test_create_admin_in_development(self):
+        out = StringIO()
+        call_command("create_admin", stdout=out)
+        self.assertTrue(User.objects.filter(username="gui.admin", is_superuser=True).exists())
+        self.assertIn("Created admin user gui.admin", out.getvalue())
+
+    @patch.dict("os.environ", {"ENVIRONMENT": "production"}, clear=True)
+    def test_create_admin_in_production_fails(self):
+        with self.assertRaises(CommandError):
+            call_command("create_admin")
+        self.assertFalse(User.objects.filter(username="gui.admin").exists())
+
+    @patch.dict("os.environ", {}, clear=True)
+    def test_create_admin_without_environment_fails(self):
+        with self.assertRaises(CommandError):
+            call_command("create_admin")
+        self.assertFalse(User.objects.filter(username="gui.admin").exists())
